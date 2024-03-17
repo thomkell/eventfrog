@@ -1,4 +1,5 @@
 # Eventfrog Tickets Sales Analysis
+https://eventfrog.ch
 
 This project contains a Python script for analyzing and visualizing the ticket sales data from Eventfrog. It compares ticket presales per day from January to June across multiple years (2019, 2022, 2023, 2024) and provides insights into the sales trends.
 
