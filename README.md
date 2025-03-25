@@ -1,29 +1,32 @@
-# Eventfrog Tickets Sales Analysis
-https://eventfrog.ch
+# 🎟️ Eventfrog Tickets Sales Analysis
 
-This project contains a Python script for analyzing and visualizing the ticket sales data from Eventfrog. It compares ticket presales per day from January to June across multiple years (2019, 2022, 2023, 2024) and provides insights into the sales trends.
+[https://eventfrog.ch](https://eventfrog.ch)
 
-## Description
+This project analyzes and visualizes ticket sales data from **Eventfrog**, focusing on ticket presales from January to June across multiple years (2019, 2022, 2023, 2024). It aims to reveal trends in customer behavior and sales performance over time.
 
-The Python script utilizes `pandas` for data manipulation, `matplotlib` for visualization, and `datetime` for handling date information. It creates two types of plots: individual year trends and cumulative sales comparisons up to the current date each year.
+---
 
-## Getting Started
+## 📊 Description
+
+The scripts in this repository process raw ticket data and generate visual comparisons across years. Key features include:
+
+- Daily ticket presales trend visualization  
+- Cumulative sales comparison up to the current date each year  
+- Support for multiple years of data  
+- Clear, time-based plots for presentations or internal reporting
+
+Built using:
+- `pandas` for data manipulation  
+- `matplotlib` for creating visualizations  
+- `datetime` for managing and aligning date-based data
+
+---
+
+## 🚀 Getting Started
 
 ### Dependencies
 
-* Python 3.8 or higher
-* Pandas library
-* Matplotlib library
-* OpenPyXL library (for reading Excel files if using `.xlsx`)
-
-### Installing
-
-* Clone this repository or download the script to your local machine.
-* Ensure you have the required Excel files with sales data named as `2019.xlsx`, `2022.xlsx`, `2023.xlsx`, and `2024.xlsx` or adjsut according to your data.
-
-### Executing the Program
-
-To run the program, navigate to the directory containing the script and execute:
+To run the analysis scripts, install the following Python packages:
 
 ```bash
-python ticket_sales_analysis.py
+pip install pandas matplotlib
