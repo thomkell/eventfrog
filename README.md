@@ -8,9 +8,9 @@ This project analyzes and visualizes ticket sales data from [Eventfrog](https://
 
 | File                        | Description |
 |----------------------------|-------------|
-| `TicketBuyLocations.py`    | Analyzes the geographical distribution of buyers, helping to understand where ticket purchases are coming from. |
-| `TicketSold.py`            | Aggregates and analyzes total ticket sales per event, year, or time window. Useful for identifying peak sales periods. |
-| `printSalesoverAllyears.py`| Generates a year-over-year comparison of ticket presales, visualizing daily and cumulative trends between January and June. |
+| `TicketBuyLocations.py`    | Analyzes the geographical distribution, helping to understand where ticket purchases are coming from |
+| `TicketSold.py`            | Aggregates and analyzes total ticket sales per event, year, or time window. Useful for identifying peak sales periods |
+| `printSalesoverAllyears.py`| Generates a year-over-year comparison of ticket presales, visualizing daily and cumulative trends between ex. January and June |
 
 ---
 
