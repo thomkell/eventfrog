@@ -17,7 +17,7 @@ This project analyzes and visualizes ticket sales data from [Eventfrog](https://
 
 ---
 
-## 📊 Coming Features
+## 📊 Features
 
 - Daily presales trend visualization per year
 - Cumulative ticket sales comparison by year (up to current date)
