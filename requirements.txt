@@ -1,6 +1,6 @@
-Flask
+streamlit
 pandas
-matplotlib
+plotly
 geopandas
 geopy
 openpyxl

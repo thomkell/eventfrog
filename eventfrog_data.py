@@ -1,28 +1,25 @@
-import matplotlib
-matplotlib.use('Agg')  # Use a non-interactive backend
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.express as px
+import plotly.graph_objects as go
 
 filepath = '/Users/thomaskeller/Dropbox/RK/Eventfrog'  # Define filepath globally
 
 def get_category_sales(file_path):
     df_2025 = pd.read_excel(file_path)
     df_sold = df_2025[(df_2025["Status"] == "verkauft") & (df_2025["Bezahlt"] == "ja")]
-    sold_category_sales = df_sold["Kategorie"].value_counts()
+    sold_category_sales = df_sold["Kategorie"].value_counts().reset_index()
+    sold_category_sales.columns = ['Category', 'Tickets Sold']
     return sold_category_sales
 
 def plot_category_sales(sold_category_sales):
-    plt.figure(figsize=(10, 6))
-    ax = sold_category_sales.plot(kind="bar", color="skyblue", edgecolor="black")
+    total_sold = sold_category_sales['Tickets Sold'].sum()
 
-    plt.title(f"Sold Ticket Sales per Category (2025) - Total: {sold_category_sales.sum()}")
-    plt.xlabel("Category")
-    plt.ylabel("Number of Tickets Sold")
-    plt.xticks(rotation=45)
-
-    for bar in ax.patches:
-        plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height(),
-                 int(bar.get_height()), ha="center", va="bottom", fontsize=10, fontweight="bold")
-
-    plt.grid(axis="y")
-    return plt
+    fig = go.Figure(data=[
+        go.Bar(x=sold_category_sales['Category'], y=sold_category_sales['Tickets Sold'])
+    ])
+    fig.update_layout(
+        title=f'Sold Ticket Sales per Category (2025) — Total: {total_sold}',
+        xaxis_title='Category',
+        yaxis_title='Number of Tickets Sold'
+    )
+    return fig
