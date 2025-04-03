@@ -1,5 +1,5 @@
 import streamlit as st
-from eventfrog_data import get_category_sales, plot_category_sales, load_sales_data, preprocess_sales_data, aggregate_sales_timeline, plot_cumulative_sales
+from eventfrog_data import get_category_sales, plot_category_sales, load_sales_data, preprocess_sales_data, aggregate_sales_timeline, plot_cumulative_sales, get_ticket_locations, geocode_locations, plot_ticket_locations
 
 st.title("Eventfrog Ticket Sales Dashboard")
 
@@ -20,9 +20,17 @@ fig_category_sales = plot_category_sales(sold_category_sales)
 st.plotly_chart(fig_category_sales)
 
 # Cumulative Sales Comparison
-st.header("Cumulative Ticket Sales Comparison (December - May)")
+st.header("Cumulative Ticket Pre-Sales Comparison (December - May)")
 sales_data = load_sales_data(filepaths)
 preprocessed_sales_data = preprocess_sales_data(sales_data)
 cumulative_sales_timeline = aggregate_sales_timeline(preprocessed_sales_data)
 fig_cumulative_sales = plot_cumulative_sales(cumulative_sales_timeline)
 st.plotly_chart(fig_cumulative_sales)
+
+# Ticket Sales Locations
+st.header("Ticket Sales Locations")
+ticket_locations = get_ticket_locations(filepaths["2025"])
+cache_path = "/Users/thomaskeller/Dropbox/RK/Eventfrog/cached_locations.csv"
+ticket_locations_geocoded = geocode_locations(ticket_locations, cache_path)
+fig_ticket_locations = plot_ticket_locations(ticket_locations_geocoded)
+st.plotly_chart(fig_ticket_locations)

@@ -1,8 +1,10 @@
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-
-filepath = '/Users/thomaskeller/Dropbox/RK/Eventfrog'  # Define filepath globally
+import geopandas as gpd
+from geopy.geocoders import Nominatim
+import time
+import os
 
 def get_category_sales(file_path):
     df_2025 = pd.read_excel(file_path)
@@ -52,20 +54,93 @@ def aggregate_sales_timeline(sales_data):
 def plot_cumulative_sales(cumulative_sales_timeline):
     fig = go.Figure()
     for year in cumulative_sales_timeline.columns:
-        fig.add_trace(go.Scatter(
-            x=cumulative_sales_timeline.index,
-            y=cumulative_sales_timeline[year],
-            mode='lines+markers',
-            name=str(year)
-        ))
-
+        fig.add_trace(go.Scatter(x=cumulative_sales_timeline.index.strftime('%m-%d'), y=cumulative_sales_timeline[year], mode='lines+markers', name=str(year)))
     fig.update_layout(
         title='Cumulative Ticket Sales Comparison (December - May)',
-        xaxis_title='Date',
-        yaxis_title='Cumulative Tickets Sold',
-        xaxis=dict(
-            tickformat='%b %d',  # Formats as 'Jan 01', 'Feb 15', etc.
-            tickangle=45
-        )
+        xaxis_title='Month-Day',
+        yaxis_title='Cumulative Tickets Sold'
     )
+    return fig
+
+def get_ticket_locations(file_path):
+    df_tickets = pd.read_excel(file_path, sheet_name='Tickets')
+    df_tickets['ort'] = (
+        df_tickets['Ort']
+        .str.lower()
+        .str.replace(r"[\.]", "", regex=True)
+        .str.replace(r"\s+", " ", regex=True)
+        .str.strip()
+    )
+    location_aliases = {
+        "bremgarten ag": "bremgarten",
+        "bremgarten (ag)": "bremgarten",
+        "affoltern a a": "affoltern am albis",
+        "affoltern aa": "affoltern am albis",
+        "affotern a albis": "affoltern am albis",
+        "affoltern am a": "affoltern am albis",
+        "affoltern": "affoltern am albis",
+        "rudolfstetten-friedlisberg": "rudolfstetten",
+        "aarau rohr": "aarau",
+        "rohr": "aarau",
+        "belikon": "bellikon",
+        "belligkon": "bellikon",
+        "zuerich": "zurich",
+        "zürich": "zurich",
+        "zh": "zurich",
+        "nesselbach": "zurich",
+        "buttwil": "zurich",
+        "mulligen": "mellingen",
+        "mülligen": "mellingen",
+        "planken": "planken",
+        "plänken": "planken",
+        "unterägeri": "unteraegeri",
+        "hausern": "hausen am albis",
+        "häusern": "hausen am albis",
+        "oberwil-lieli": "oberwil",
+        "schinzach-dorf": "schinznach",
+        "arnu": "arni",
+    }
+    df_tickets['ort'] = df_tickets['ort'].replace(location_aliases)
+    df_region_counts = df_tickets['ort'].value_counts().reset_index()
+    df_region_counts.columns = ['ort', 'tickets_sold']
+    return df_region_counts
+
+def geocode_locations(df, cache_path):
+    if os.path.exists(cache_path):
+        location_coords_df = pd.read_csv(cache_path)
+        location_coords = dict(zip(location_coords_df['ort'], zip(location_coords_df['latitude'], location_coords_df['longitude'])))
+    else:
+        location_coords = {}
+
+    geolocator = Nominatim(user_agent="ticket_sales_mapping")
+
+    def get_coordinates(location):
+        if location in location_coords:
+            return location_coords[location]
+        
+        try:
+            geo = geolocator.geocode(location + ", Switzerland", timeout=10)
+            if geo:
+                location_coords[location] = (geo.latitude, geo.longitude)
+                return geo.latitude, geo.longitude
+        except Exception as e:
+            print(f"Error fetching {location}: {e}")
+        
+        location_coords[location] = (None, None)
+        return None, None
+
+    df[['latitude', 'longitude']] = df['ort'].apply(lambda x: pd.Series(get_coordinates(x)))
+    time.sleep(1)
+
+    updated_cache_df = pd.DataFrame([
+        {'ort': loc, 'latitude': lat, 'longitude': lon}
+        for loc, (lat, lon) in location_coords.items()
+    ])
+    updated_cache_df.to_csv(cache_path, index=False)
+    return df
+
+def plot_ticket_locations(df):
+    gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude))
+    fig = px.scatter_mapbox(gdf, lat="latitude", lon="longitude", hover_name="ort", size="tickets_sold", zoom=6, mapbox_style="open-street-map")
+    fig.update_layout(title="Ticket Sales Locations")
     return fig
