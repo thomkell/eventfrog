@@ -54,11 +54,21 @@ def aggregate_sales_timeline(sales_data):
 def plot_cumulative_sales(cumulative_sales_timeline):
     fig = go.Figure()
     for year in cumulative_sales_timeline.columns:
-        fig.add_trace(go.Scatter(x=cumulative_sales_timeline.index.strftime('%m-%d'), y=cumulative_sales_timeline[year], mode='lines+markers', name=str(year)))
+        fig.add_trace(go.Scatter(
+            x=cumulative_sales_timeline.index,
+            y=cumulative_sales_timeline[year],
+            mode='lines+markers',
+            name=str(year)
+        ))
+
     fig.update_layout(
         title='Cumulative Ticket Sales Comparison (December - May)',
         xaxis_title='Month-Day',
-        yaxis_title='Cumulative Tickets Sold'
+        yaxis_title='Cumulative Tickets Sold',
+        xaxis=dict(
+            tickformat='%b %d',  # Show as 'Dec 01', 'Jan 15', etc.
+            tickangle=45
+        )
     )
     return fig
 
