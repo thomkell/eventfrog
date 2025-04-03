@@ -72,8 +72,8 @@ def get_ticket_locations(file_path):
         .str.strip()
     )
     location_aliases = {
-        "bremgarten ag": "bremgarten",
-        "bremgarten (ag)": "bremgarten",
+        "bremgarten": "bremgarten ag",
+        "bremgarten (ag)": "bremgarten ag",
         "affoltern a a": "affoltern am albis",
         "affoltern aa": "affoltern am albis",
         "affotern a albis": "affoltern am albis",
@@ -96,9 +96,13 @@ def get_ticket_locations(file_path):
         "unterägeri": "unteraegeri",
         "hausern": "hausen am albis",
         "häusern": "hausen am albis",
-        "oberwil-lieli": "oberwil",
+        "oberwil-lieli": "lieli",
+        "oberwil": "lieli",
         "schinzach-dorf": "schinznach",
-        "arnu": "arni",
+        "arnu": "arni ag",
+        "arni": "arni ag",
+        "muri": "muri ag",
+
     }
     df_tickets['ort'] = df_tickets['ort'].replace(location_aliases)
     df_region_counts = df_tickets['ort'].value_counts().reset_index()
@@ -141,6 +145,11 @@ def geocode_locations(df, cache_path):
 
 def plot_ticket_locations(df):
     gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude))
-    fig = px.scatter_mapbox(gdf, lat="latitude", lon="longitude", hover_name="ort", size="tickets_sold", zoom=6, mapbox_style="open-street-map")
+    fig = px.scatter_mapbox(gdf, lat="latitude", lon="longitude", hover_name="ort", size="tickets_sold", zoom=6, mapbox_style="open-street-map", color_discrete_sequence=["red"])
     fig.update_layout(title="Ticket Sales Locations")
+    return fig
+
+def plot_tickets_sold_by_location(df):
+    fig = px.bar(df, x='ort', y='tickets_sold', title='Tickets Sold Per Location')
+    fig.update_layout(xaxis_title='Location', yaxis_title='Number of Tickets Sold')
     return fig
