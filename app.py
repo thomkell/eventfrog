@@ -15,8 +15,8 @@ filepaths = {
 
 # Category Sales
 st.header("Sold Ticket Sales per Category (2025)")
-sold_category_sales = get_category_sales(filepaths["2025"])
-fig_category_sales = plot_category_sales(sold_category_sales)
+sold_category_sales, df_sold = get_category_sales(filepaths["2025"])
+fig_category_sales = plot_category_sales(sold_category_sales, df_sold)
 st.plotly_chart(fig_category_sales)
 
 # Cumulative Sales Comparison
@@ -39,3 +39,6 @@ st.plotly_chart(fig_ticket_locations)
 st.header("Tickets Sold Per Location")
 fig_tickets_sold_by_location = plot_tickets_sold_by_location(ticket_locations_geocoded)
 st.plotly_chart(fig_tickets_sold_by_location)
+
+fig = plot_cumulative_sales(cumulative_sales_timeline)
+fig.write_html("dashboard.html", full_html=True)

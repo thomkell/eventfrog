@@ -11,14 +11,14 @@ def get_category_sales(file_path):
     df_sold = df_2025[(df_2025["Status"] == "verkauft") & (df_2025["Bezahlt"] == "ja")]
     sold_category_sales = df_sold["Kategorie"].value_counts().reset_index()
     sold_category_sales.columns = ['Category', 'Tickets Sold']
-    return sold_category_sales
+    return sold_category_sales, df_sold
 
-def plot_category_sales(sold_category_sales):
+def plot_category_sales(sold_category_sales, df_sold):
     fig = go.Figure(data=[
         go.Bar(x=sold_category_sales['Category'], y=sold_category_sales['Tickets Sold'])
     ])
     fig.update_layout(
-        title='Sold Ticket Sales per Category (2025)',
+        title=f'Sold Ticket Sales per Category (2025) - Total: {len(df_sold)}',
         xaxis_title='Category',
         yaxis_title='Number of Tickets Sold'
     )
