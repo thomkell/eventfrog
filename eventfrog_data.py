@@ -5,6 +5,7 @@ import geopandas as gpd
 from geopy.geocoders import Nominatim
 import time
 import os
+import certifi
 
 def get_category_sales(file_path):
     df_2025 = pd.read_excel(file_path)
@@ -40,7 +41,7 @@ def load_sales_data(files):
 
 def preprocess_sales_data(sales_data):
     sales_data["Month-Day"] = sales_data["Kaufdatum"].dt.strftime("%m-%d")
-    sales_data = sales_data[sales_data["Kaufdatum"].dt.month.isin([12, 1, 2, 3, 4, 5])]
+    sales_data = sales_data[sales_data["Kaufdatum"].dt.month.isin([12, 1, 2, 3, 4, 5, 6])]
     return sales_data
 
 def aggregate_sales_timeline(sales_data):
@@ -55,14 +56,14 @@ def plot_cumulative_sales(cumulative_sales_timeline):
     fig = go.Figure()
     for year in cumulative_sales_timeline.columns:
         fig.add_trace(go.Scatter(
-            x=cumulative_sales_timeline.index,
+            x=cumulative_sales_timeline.index.strftime('%m-%d'),
             y=cumulative_sales_timeline[year],
             mode='lines+markers',
             name=str(year)
         ))
 
     fig.update_layout(
-        title='Cumulative Ticket Sales Comparison (December - May)',
+        title='Cumulative Ticket Sales Comparison (December - June)',
         xaxis_title='Month-Day',
         yaxis_title='Cumulative Tickets Sold',
         xaxis=dict(
@@ -112,7 +113,6 @@ def get_ticket_locations(file_path):
         "arnu": "arni ag",
         "arni": "arni ag",
         "muri": "muri ag",
-
     }
     df_tickets['ort'] = df_tickets['ort'].replace(location_aliases)
     df_region_counts = df_tickets['ort'].value_counts().reset_index()
@@ -126,7 +126,7 @@ def geocode_locations(df, cache_path):
     else:
         location_coords = {}
 
-    geolocator = Nominatim(user_agent="ticket_sales_mapping")
+    geolocator = Nominatim(user_agent="ticket_sales_mapping", scheme='https', ssl_context=certifi.where())
 
     def get_coordinates(location):
         if location in location_coords:
