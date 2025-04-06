@@ -8,19 +8,25 @@ import os
 import certifi
 
 def get_category_sales(file_path):
-    df_2025 = pd.read_excel(file_path)
-    df_sold = df_2025[(df_2025["Status"] == "verkauft") & (df_2025["Bezahlt"] == "ja")]
-    sold_category_sales = df_sold["Kategorie"].value_counts().reset_index()
-    sold_category_sales.columns = ['Category', 'Tickets Sold']
+    df = pd.read_excel(file_path)
+    df_sold = df[(df["Status"] == "verkauft") & (df["Bezahlt"] == "ja")]
+    df_sold['Category_Price'] = df_sold['Kategorie'] + ' (' + df_sold['Preis'].astype(str) + ' CHF)'
+    sold_category_sales = df_sold["Category_Price"].value_counts().reset_index()
+    sold_category_sales.columns = ['Category_Price', 'Tickets Sold']
     return sold_category_sales, df_sold
 
 def plot_category_sales(sold_category_sales, df_sold):
     fig = go.Figure(data=[
-        go.Bar(x=sold_category_sales['Category'], y=sold_category_sales['Tickets Sold'])
+        go.Bar(
+            x=sold_category_sales['Category_Price'],
+            y=sold_category_sales['Tickets Sold'],
+            text=sold_category_sales['Tickets Sold'],
+            textposition='outside'
+        )
     ])
     fig.update_layout(
         title=f'Sold Ticket Sales per Category (2025) - Total: {len(df_sold)}',
-        xaxis_title='Category',
+        xaxis_title='Category (Price in CHF)',
         yaxis_title='Number of Tickets Sold'
     )
     return fig
