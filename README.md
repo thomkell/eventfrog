@@ -25,6 +25,7 @@ This project analyzes and visualizes ticket sales data from [Eventfrog](https://
 - Modular scripts for independent or combined use
 - Clear, presentation-ready plots for internal reporting or public updates
 - Sidebar for selecting a year to view sold tickets for that specific year
+- Tabs for different plots
 
 ---
 

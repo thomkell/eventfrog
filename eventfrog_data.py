@@ -56,7 +56,7 @@ def plot_cumulative_sales(cumulative_sales_timeline):
     fig = go.Figure()
     for year in cumulative_sales_timeline.columns:
         fig.add_trace(go.Scatter(
-            x=cumulative_sales_timeline.index.strftime('%m-%d'),
+            x=cumulative_sales_timeline.index,
             y=cumulative_sales_timeline[year],
             mode='lines+markers',
             name=str(year)
