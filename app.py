@@ -6,11 +6,11 @@ st.title("Eventfrog Ticket Sales Dashboard")
 # File paths
 path = "/Users/thomaskeller/Dropbox/RK/Eventfrog"
 filepaths = {
-    "2019": f"{path}/2019.xlsx",
-    "2022": f"{path}/2022.xlsx",
-    "2023": f"{path}/2023.xlsx",
+    "2025": f"{path}/2025.xlsx",
     "2024": f"{path}/2024.xlsx",
-    "2025": f"{path}/2025.xlsx"
+    "2023": f"{path}/2023.xlsx",
+    "2022": f"{path}/2022.xlsx",
+    "2019": f"{path}/2019.xlsx"
 }
 
 # Sidebar for year selection
