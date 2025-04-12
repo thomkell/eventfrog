@@ -5,6 +5,8 @@ st.title("Eventfrog Ticket Sales Dashboard")
 
 # File paths
 path = "/Users/thomaskeller/Dropbox/RK/Eventfrog"
+cache_path = "/Users/thomaskeller/Dropbox/RK/Eventfrog/cached_locations.csv"
+
 filepaths = {
     "2025": f"{path}/2025.xlsx",
     "2024": f"{path}/2024.xlsx",
@@ -37,7 +39,7 @@ with tab2:
 with tab3:
     st.header("Ticket Sales Locations")
     ticket_locations = get_ticket_locations(filepaths[selected_year])
-    cache_path = "/Users/thomaskeller/Dropbox/RK/Eventfrog/cached_locations.csv"
+    cache_path = cache_path
     ticket_locations_geocoded = geocode_locations(ticket_locations, cache_path)
     fig_ticket_locations = plot_ticket_locations(ticket_locations_geocoded)
     st.plotly_chart(fig_ticket_locations)
