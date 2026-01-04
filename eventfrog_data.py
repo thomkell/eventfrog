@@ -24,10 +24,17 @@ def plot_category_sales(sold_category_sales, df_sold):
             textposition='outside'
         )
     ])
+
+    # Give some headroom above the tallest bar so the outside text label isn't clipped
+    max_tickets = sold_category_sales['Tickets Sold'].max() if not sold_category_sales.empty else 0
+    y_max = max(10, max_tickets * 1.2)
+
+    fig.update_traces(textfont_size=12)
     fig.update_layout(
         title=f'Sold Ticket Sales per Category (2025) - Total: {len(df_sold)}',
         xaxis_title='Category (Price in CHF)',
-        yaxis_title='Number of Tickets Sold'
+        yaxis=dict(title='Number of Tickets Sold', range=[0, y_max], automargin=True),
+        margin=dict(t=110, b=80, l=60, r=40),
     )
     return fig
 

@@ -4,8 +4,9 @@ from eventfrog_data import get_category_sales, plot_category_sales, load_sales_d
 st.title("Eventfrog Ticket Sales Dashboard")
 
 # File paths
-path = "/Users/thomaskeller/Dropbox/RK/Eventfrog"
-cache_path = "/Users/thomaskeller/Dropbox/RK/Eventfrog/cached_locations.csv"
+#path = "/Users/thomaskeller/Dropbox/RK/Eventfrog"
+path = "data/"
+cache_path = "locations/cached_locations.csv"
 
 filepaths = {
     "2026": f"{path}/2026.xlsx",
