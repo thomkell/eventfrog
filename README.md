@@ -1,6 +1,6 @@
 # 🎟️ Eventfrog Ticket Sales Analysis
 
-This project analyzes and visualizes ticket sales data from [Eventfrog](https://eventfrog.ch), focusing on trends from January to June across multiple years (2019, 2022, 2023, 2024). The goal is to better understand customer behavior and presale performance over time.
+This project analyzes and visualizes ticket sales data from [Eventfrog](https://eventfrog.ch), focusing on trends from January to June across multiple years (2019, 2022, 2023, 2024, ...). The goal is to better understand customer behavior and presale performance over time.
 
 ---
 
@@ -47,3 +47,10 @@ This project analyzes and visualizes ticket sales data from [Eventfrog](https://
 ```bash
 git clone https://github.com/thomkell/eventfrog.git
 cd eventfrog
+```
+
+### How to run
+
+```python
+streamlit run app.py
+```

@@ -8,6 +8,7 @@ path = "/Users/thomaskeller/Dropbox/RK/Eventfrog"
 cache_path = "/Users/thomaskeller/Dropbox/RK/Eventfrog/cached_locations.csv"
 
 filepaths = {
+    "2026": f"{path}/2026.xlsx",
     "2025": f"{path}/2025.xlsx",
     "2024": f"{path}/2024.xlsx",
     "2023": f"{path}/2023.xlsx",
