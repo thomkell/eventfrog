@@ -49,7 +49,7 @@ git clone https://github.com/thomkell/eventfrog.git
 cd eventfrog
 ```
 
-### How to run
+### 2. How to run
 
 ```python
 streamlit run app.py

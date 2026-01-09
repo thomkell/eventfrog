@@ -6,9 +6,24 @@ from geopy.geocoders import Nominatim
 import time
 import os
 import certifi
+import ssl
+
+def find_header_row(file_path, sheet_name=0):
+    """Find the row where actual header data starts by looking for common column names"""
+    try:
+        df_raw = pd.read_excel(file_path, sheet_name=sheet_name, header=None)
+        # Look for rows that contain common header keywords
+        for idx, row in df_raw.iterrows():
+            row_str = str(row).lower()
+            if 'status' in row_str or 'kategorie' in row_str or 'preis' in row_str:
+                return idx
+        return 0
+    except:
+        return 0
 
 def get_category_sales(file_path):
-    df = pd.read_excel(file_path)
+    skiprows = find_header_row(file_path)
+    df = pd.read_excel(file_path, skiprows=skiprows)
     df_sold = df[(df["Status"] == "verkauft") & (df["Bezahlt"] == "ja")]
     df_sold['Category_Price'] = df_sold['Kategorie'] + ' (' + df_sold['Preis'].astype(str) + ' CHF)'
     sold_category_sales = df_sold["Category_Price"].value_counts().reset_index()
@@ -41,7 +56,8 @@ def plot_category_sales(sold_category_sales, df_sold):
 def load_sales_data(files):
     dfs = {}
     for year, file in files.items():
-        dfs[year] = pd.read_excel(file)
+        skiprows = find_header_row(file)
+        dfs[year] = pd.read_excel(file, skiprows=skiprows)
 
     all_data = []
     for year, df in dfs.items():
@@ -87,7 +103,8 @@ def plot_cumulative_sales(cumulative_sales_timeline):
     return fig
 
 def get_ticket_locations(file_path):
-    df_tickets = pd.read_excel(file_path, sheet_name='Tickets')
+    skiprows = find_header_row(file_path, sheet_name='Tickets')
+    df_tickets = pd.read_excel(file_path, sheet_name='Tickets', skiprows=skiprows)
     df_tickets['ort'] = (
         df_tickets['Ort']
         .str.lower()
@@ -133,38 +150,64 @@ def get_ticket_locations(file_path):
     return df_region_counts
 
 def geocode_locations(df, cache_path):
+    # Load existing cache
+    location_coords = {}
     if os.path.exists(cache_path):
         location_coords_df = pd.read_csv(cache_path)
-        location_coords = dict(zip(location_coords_df['ort'], zip(location_coords_df['latitude'], location_coords_df['longitude'])))
-    else:
-        location_coords = {}
+        for _, row in location_coords_df.iterrows():
+            lat = row['latitude'] if pd.notna(row['latitude']) and row['latitude'] != '' else None
+            lon = row['longitude'] if pd.notna(row['longitude']) and row['longitude'] != '' else None
+            location_coords[row['ort']] = (lat, lon)
 
-    geolocator = Nominatim(user_agent="ticket_sales_mapping", scheme='https', ssl_context=certifi.where())
+    # Create directory if needed
+    cache_dir = os.path.dirname(cache_path)
+    if cache_dir and not os.path.exists(cache_dir):
+        os.makedirs(cache_dir)
 
-    def get_coordinates(location):
-        if location in location_coords:
-            return location_coords[location]
-        
-        try:
-            geo = geolocator.geocode(location + ", Switzerland", timeout=10)
-            if geo:
-                location_coords[location] = (geo.latitude, geo.longitude)
-                return geo.latitude, geo.longitude
-        except Exception as e:
-            print(f"Error fetching {location}: {e}")
-        
-        location_coords[location] = (None, None)
-        return None, None
+    # Set up geolocator with proper SSL context
+    try:
+        ctx = ssl.create_default_context(cafile=certifi.where())
+        geolocator = Nominatim(user_agent="eventfrog_ticket_analysis", timeout=10, ssl_context=ctx)
+    except:
+        geolocator = Nominatim(user_agent="eventfrog_ticket_analysis", timeout=10)
 
-    df[['latitude', 'longitude']] = df['ort'].apply(lambda x: pd.Series(get_coordinates(x)))
-    time.sleep(1)
+    locations_to_geocode = df[df['ort'].notna()]['ort'].unique()
+    print(f"Processing {len(locations_to_geocode)} unique locations...")
 
+    for location in locations_to_geocode:
+        if location not in location_coords or (location_coords[location][0] is None and location_coords[location][1] is None):
+            # Need to geocode this location
+            try:
+                time.sleep(1.5)  # Rate limiting for Nominatim
+                print(f"Geocoding: {location}...", end=" ")
+                geo = geolocator.geocode(location + ", Switzerland", timeout=10)
+                if geo:
+                    location_coords[location] = (geo.latitude, geo.longitude)
+                    print(f"✓ ({geo.latitude}, {geo.longitude})")
+                else:
+                    print(f"✗ No results")
+                    location_coords[location] = (None, None)
+            except Exception as e:
+                print(f"✗ Error: {e}")
+                location_coords[location] = (None, None)
+    
+    # Apply coordinates to dataframe
+    df['latitude'] = df['ort'].map(lambda x: location_coords.get(x, (None, None))[0])
+    df['longitude'] = df['ort'].map(lambda x: location_coords.get(x, (None, None))[1])
+
+    # Save cache
     updated_cache_df = pd.DataFrame([
         {'ort': loc, 'latitude': lat, 'longitude': lon}
         for loc, (lat, lon) in location_coords.items()
     ])
     updated_cache_df.to_csv(cache_path, index=False)
-    return df
+    print(f"✓ Cache saved to {cache_path}")
+    
+    # Filter to only valid coordinates for the map
+    df_valid = df.dropna(subset=['latitude', 'longitude'])
+    print(f"✓ {len(df_valid)}/{len(df)} locations have coordinates")
+    
+    return df_valid
 
 def plot_ticket_locations(df):
     gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude))
