@@ -46,7 +46,7 @@ def plot_category_sales(sold_category_sales, df_sold):
 
     fig.update_traces(textfont_size=12)
     fig.update_layout(
-        title=f'Sold Ticket Sales per Category (2025) - Total: {len(df_sold)}',
+        title=f'Sold Ticket Sales per Category - Total: {len(df_sold)}',
         xaxis_title='Category (Price in CHF)',
         yaxis=dict(title='Number of Tickets Sold', range=[0, y_max], automargin=True),
         margin=dict(t=110, b=80, l=60, r=40),
@@ -143,6 +143,7 @@ def get_ticket_locations(file_path):
         "arnu": "arni ag",
         "arni": "arni ag",
         "muri": "muri ag",
+        "stgallen": "St. Gallen",
     }
     df_tickets['ort'] = df_tickets['ort'].replace(location_aliases)
     df_region_counts = df_tickets['ort'].value_counts().reset_index()
@@ -215,7 +216,13 @@ def plot_ticket_locations(df):
     fig.update_layout(title="Ticket Sales Locations")
     return fig
 
-def plot_tickets_sold_by_location(df):
-    fig = px.bar(df, x='ort', y='tickets_sold', title='Tickets Sold Per Location')
+def plot_tickets_sold_by_location(df, min_tickets=4):
+    df_plot = df.copy()
+    df_plot['tickets_sold'] = pd.to_numeric(df_plot['tickets_sold'], errors='coerce')
+    if min_tickets is not None:
+        df_plot = df_plot[df_plot['tickets_sold'] >= min_tickets]
+
+    df_plot = df_plot.sort_values(by='tickets_sold', ascending=False)
+    fig = px.bar(df_plot, x='ort', y='tickets_sold', title=f'Tickets Sold Per Location (≥ {min_tickets})')
     fig.update_layout(xaxis_title='Location', yaxis_title='Number of Tickets Sold')
     return fig
